@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CelestialStars-Api", "CelestialStars-Api\CelestialStars-Api.csproj", "{493DE6EC-29D6-4CEE-9765-42774CF6BAB3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CelestialStars-Sql", "CelestialStars-Sql\CelestialStars-Sql.csproj", "{CA5EED1E-02ED-4DC0-9664-B0FCF2913FFB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CelestialStars-Domain", "CelestialStars-Domain\CelestialStars-Domain.csproj", "{D8CDAFF1-91E3-420A-9EE6-1C71AA2B3A35}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{493DE6EC-29D6-4CEE-9765-42774CF6BAB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{493DE6EC-29D6-4CEE-9765-42774CF6BAB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{493DE6EC-29D6-4CEE-9765-42774CF6BAB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{493DE6EC-29D6-4CEE-9765-42774CF6BAB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA5EED1E-02ED-4DC0-9664-B0FCF2913FFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA5EED1E-02ED-4DC0-9664-B0FCF2913FFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA5EED1E-02ED-4DC0-9664-B0FCF2913FFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA5EED1E-02ED-4DC0-9664-B0FCF2913FFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8CDAFF1-91E3-420A-9EE6-1C71AA2B3A35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8CDAFF1-91E3-420A-9EE6-1C71AA2B3A35}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8CDAFF1-91E3-420A-9EE6-1C71AA2B3A35}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8CDAFF1-91E3-420A-9EE6-1C71AA2B3A35}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
