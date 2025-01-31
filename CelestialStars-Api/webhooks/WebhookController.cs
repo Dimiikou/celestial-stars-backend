@@ -1,4 +1,5 @@
-﻿using CelestialStars_Sql;
+﻿using CelestialStars_Domain;
+using CelestialStars_Sql;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -8,7 +9,9 @@ public static class WebhookController
 {
     public static void MapWebhookEndpoints(this IEndpointRouteBuilder routeBuilder)
     {
-        var webhookGroup = routeBuilder.MapGroup("/webhook");
+        var webhookGroup = routeBuilder.MapGroup("/webhooks")
+            .RequireAuthorization();
+
         webhookGroup.MapTwitchWebhookEndpoints();
 
         webhookGroup.MapGet("/", GetWebhooks);
@@ -62,7 +65,7 @@ public static class WebhookController
 
     #endregion Get Mappings
 
-    private static async Task CreateNewWebhook(HttpContext httpContext)
+    private static async Task CreateNewWebhook(HttpContext httpContext, Webhook webhook)
     {
         httpContext.Response.StatusCode = 200;
         await httpContext.Response.WriteAsync("Jawollo");

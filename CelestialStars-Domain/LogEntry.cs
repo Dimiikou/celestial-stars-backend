@@ -2,7 +2,10 @@
 
 public class LogEntry
 {
-    public int id { get; set; }
+    public int Id { get; set; }
+
+    public int WebhookId { get; set; } // Foreign key
+    public Webhook Webhook { get; set; } // Navigation property
 
     public DateTime Date { get; set; }
 
