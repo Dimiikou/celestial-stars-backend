@@ -1,0 +1,49 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Create and populate appsettings.json
+      run: |
+        mkdir -p CelestialStars-Api
+        echo '{
+          "Jwt": {
+            "Key": "${{ secrets.JWT_KEY }}",
+            "Issuer": "https://api.aissa.dev",
+            "Audience": "https://api.aissa.com"
+          },
+          "ConnectionStrings": {
+            "DefaultConnection": "${{ secrets.DB_CONNECTION_STRING }}"
+          },
+          "Logging": {
+            "LogLevel": {
+              "Default": "Information",
+              "Microsoft.AspNetCore": "Warning"
+            }
+          },
+          "AllowedHosts": "*"
+        }' > CelestialStars-Api/appsettings.json
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore
+
+    - name: Run UnitTests
+      run: dotnet test --no-build --verbosity normal
