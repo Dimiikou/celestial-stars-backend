@@ -9,9 +9,8 @@ This repository contains the **CelestialStars-Backend** code, which I use privat
    - [CelestialStars-Sql](#celestialstars-sql)
    - [CelestialStars-Domain](#celestialstars-domain)
    - [CelestialStars-UnitTests](#celestialstars-unittests)
-4. [Run Tests](#run-tests)
-5. [Contributing](#contributing)
-6. [Contact](#contact)
+4. [Contributing](#contributing)
+5. [Contact](#contact)
 
 ---
 
