@@ -1,6 +1,7 @@
 using System.Text;
 using CelestialStars_Api.accounting;
 using CelestialStars_Api.services;
+using CelestialStars_Api.summonersQuiz;
 using CelestialStars_Api.webhooks;
 using CelestialStars_Sql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -122,5 +123,6 @@ public partial class Program
     {
         app.MapWebhookEndpoints();
         app.MapAccountApi();
+        app.MapHighscoreApi();
     }
 }

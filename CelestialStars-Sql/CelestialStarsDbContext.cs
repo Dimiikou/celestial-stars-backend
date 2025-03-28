@@ -13,6 +13,7 @@ public class CelestialStarsDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Webhook> Webhooks { get; set; }
     public DbSet<LogEntry> LogEntries { get; set; }
+    public DbSet<Highscore> Highscores { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,6 +23,11 @@ public class CelestialStarsDbContext : DbContext
         });
 
         modelBuilder.Entity<Webhook>(e =>
+        {
+            e.HasKey(entity => entity.Id);
+        });
+
+        modelBuilder.Entity<Highscore>(e =>
         {
             e.HasKey(entity => entity.Id);
         });
