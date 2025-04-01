@@ -10,7 +10,7 @@ public static class HighscoreController
 {
     public static void MapHighscoreApi(this IEndpointRouteBuilder routeBuilder)
     {
-        var accountGroup = routeBuilder.MapGroup("/account")
+        var accountGroup = routeBuilder.MapGroup("/summonersQuiz")
             .RequireAuthorization();
 
         accountGroup.MapPost("/", InsertHighscore)
