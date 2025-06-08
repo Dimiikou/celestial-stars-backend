@@ -1,0 +1,191 @@
+name: Deploy CelestialStars-Api
+
+on:
+  workflow_run:
+    workflows: ["Database Migration"]
+    types:
+      - completed
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Nur ausführen wenn Migration erfolgreich war oder manuell getriggert
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET 9.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build solution
+      run: dotnet build --configuration Release
+      
+    - name: Publish CelestialStars-Api
+      run: |
+        echo "📦 Publishe CelestialStars-Api..."
+        dotnet publish ./CelestialStars-Api/CelestialStars-Api.csproj \
+          --configuration Release \
+          --framework net9.0 \
+          --runtime linux-x64 \
+          --self-contained false \
+          --output ./publish \
+          -p:PublishReadyToRun=true \
+          -p:PublishSingleFile=false
+        echo "✅ Publish erfolgreich abgeschlossen"
+          
+    - name: Create deployment archive
+      run: |
+        cd publish
+        tar -czf ../celestialstars-api-deployment.tar.gz *
+        cd ..
+        echo "📁 Deployment-Archiv erstellt: $(du -h celestialstars-api-deployment.tar.gz)"
+        
+    - name: Stop running service
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          echo "🛑 Stoppe laufende CelestialStars-Api Prozesse..."
+          if pgrep -f "celestial-stars-api" > /dev/null; then
+            echo "Gefundene Prozesse:"
+            ps aux | grep -v grep | grep celestial-stars-api || true
+            
+            echo "Sende SIGTERM..."
+            pkill -TERM -f "celestial-stars-api" || true
+            sleep 10
+            
+            # Prüfe ob noch läuft
+            if pgrep -f "celestial-stars-api" > /dev/null; then
+              echo "Prozess läuft noch - sende SIGKILL..."
+              pkill -KILL -f "celestial-stars-api" || true
+              sleep 5
+            fi
+            
+            if ! pgrep -f "celestial-stars-api" > /dev/null; then
+              echo "✅ Service erfolgreich gestoppt"
+            else
+              echo "⚠️ Service konnte nicht vollständig gestoppt werden"
+            fi
+          else
+            echo "ℹ️ Kein laufender CelestialStars-Api Prozess gefunden"
+          fi
+        
+    - name: Backup and prepare deployment
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          echo "💾 Erstelle Backup des aktuellen Deployments..."
+          
+          # Erstelle Backup mit Timestamp
+          BACKUP_DIR="/home/csapi/backup-$(date +%Y%m%d-%H%M%S)"
+          if [ -d "/home/csapi" ] && [ "$(ls -A /home/csapi 2>/dev/null | grep -v backup)" ]; then
+            mkdir -p "$BACKUP_DIR"
+            cp -r /home/csapi/* "$BACKUP_DIR/" 2>/dev/null || true
+            echo "✅ Backup erstellt in: $BACKUP_DIR"
+            
+            # Behalte nur die letzten 5 Backups
+            cd /home/csapi
+            ls -dt backup-* 2>/dev/null | tail -n +6 | xargs rm -rf 2>/dev/null || true
+          else
+            echo "ℹ️ Kein vorheriges Deployment für Backup gefunden"
+          fi
+          
+          echo "🧹 Lösche alte Dateien..."
+          find /home/csapi -maxdepth 1 -type f ! -name "start.sh" ! -name "appsettings.json" ! -name "appsettings.Production.json" ! -name "*.log" -delete 2>/dev/null || true
+          find /home/csapi -maxdepth 1 -type d ! -name "backup-*" ! -path "/home/csapi" -exec rm -rf {} + 2>/dev/null || true
+          
+          echo "✅ Deployment-Verzeichnis vorbereitet"
+          
+    - name: Copy files to server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        source: "celestialstars-api-deployment.tar.gz"
+        target: "/tmp/"
+        
+    - name: Extract and configure deployment
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          echo "📦 Extrahiere Deployment..."
+          cd /home/csapi
+          tar -xzf /tmp/celestialstars-api-deployment.tar.gz
+          
+          echo "🔧 Setze Berechtigungen..."
+          chmod +x /home/csapi/CelestialStars-Api
+          chmod +x /home/csapi/start.sh
+          
+          echo "🧹 Räume temporäre Dateien auf..."
+          rm -f /tmp/celestialstars-api-deployment.tar.gz
+          
+          echo "🚀 Starte CelestialStars-Api..."
+          cd /home/csapi && nohup ./start.sh > start.log 2>&1 &
+          
+          echo "✅ Deployment-Konfiguration abgeschlossen"
+          
+    - name: Verify deployment
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          echo "🔍 Verifiziere Deployment..."
+          
+          # Warte auf Service-Start
+          for i in {1..30}; do
+            if pgrep -f "celestial-stars-api" > /dev/null; then
+              echo "✅ CelestialStars-Api erfolgreich gestartet (Versuch $i)"
+              echo "📊 Laufende Prozesse:"
+              ps aux | grep -v grep | grep celestial-stars-api
+              
+              # Zeige Service-Info
+              echo "🌟 Service-Details:"
+              echo "PID: $(pgrep -f celestial-stars-api)"
+              echo "Start-Zeit: $(ps -o lstart= -p $(pgrep -f celestial-stars-api))"
+              
+              exit 0
+            fi
+            echo "⏳ Warte auf Service-Start... (Versuch $i/30)"
+            sleep 2
+          done
+          
+          echo "❌ CelestialStars-Api konnte nicht gestartet werden"
+          echo "🔍 Diagnose-Informationen:"
+          
+          if [ -f "/home/csapi/start.log" ]; then
+            echo "📋 Start-Log (letzte 20 Zeilen):"
+            tail -20 /home/csapi/start.log
+          fi
+          
+          echo "📁 Verzeichnis-Inhalt:"
+          ls -la /home/csapi/
+          
+          echo "🔍 Andere Log-Dateien:"
+          find /home/csapi -name "*.log" -type f -exec echo "=== {} ===" \; -exec tail -10 {} \; 2>/dev/null || echo "Keine zusätzlichen Log-Dateien gefunden"
+          
+          exit 
