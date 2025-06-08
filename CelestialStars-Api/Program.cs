@@ -103,15 +103,11 @@ public partial class Program
 
     private static void ConfigureMiddleware(WebApplication app, IWebHostEnvironment env)
     {
-        if (env.IsDevelopment())
-        {
-            app.MapOpenApi();
-        }
-
+        app.MapOpenApi();
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Aissa Dev API v1");
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "CelestialStars API v1");
             c.RoutePrefix = string.Empty;
         });
 
@@ -126,6 +122,6 @@ public partial class Program
         app.MapAccountApi();
         app.MapHighscoreApi();
 
-        app.MapGet("/", () => "Ding Dong");
+        app.MapGet("/ping", () => "Ding Dong");
     }
 }
