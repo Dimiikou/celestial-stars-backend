@@ -106,13 +106,14 @@ public partial class Program
         if (env.IsDevelopment())
         {
             app.MapOpenApi();
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Eure API v1");
-                c.RoutePrefix = string.Empty;
-            });
         }
+
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Aissa Dev API v1");
+            c.RoutePrefix = string.Empty;
+        });
 
         app.UseHttpsRedirection();
         app.UseAuthentication();
@@ -124,5 +125,7 @@ public partial class Program
         app.MapWebhookEndpoints();
         app.MapAccountApi();
         app.MapHighscoreApi();
+
+        app.MapGet("/", () => "Ding Dong");
     }
 }
