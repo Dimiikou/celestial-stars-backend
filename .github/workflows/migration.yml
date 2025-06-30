@@ -1,0 +1,79 @@
+name: Database Migration
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    
+    outputs:
+      migration-success: ${{ steps.migration.outcome }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET 9.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Install EF Core Tools
+      run: dotnet tool install --global dotnet-ef --version 9.0.0
+      
+    - name: Build solution
+      run: dotnet build --configuration Release
+      
+    - name: Check for pending migrations
+      id: check-migrations
+      run: |
+        PENDING=$(dotnet ef migrations list \
+          --project ./CelestialStars-Sql/CelestialStars-Sql.csproj \
+          --startup-project ./CelestialStars-Api/CelestialStars-Api.csproj \
+          --configuration Release \
+          --connection "${{ secrets.DATABASE_CONNECTION_STRING }}" \
+          --no-build 2>&1 | grep -c "Pending" || echo "0")
+        
+        echo "pending-count=$PENDING" >> $GITHUB_OUTPUT
+        
+        if [ "$PENDING" -gt 0 ]; then
+          echo "✅ $PENDING ausstehende Migration(en) gefunden"
+          echo "has-pending=true" >> $GITHUB_OUTPUT
+        else
+          echo "ℹ️ Keine ausstehenden Migrationen"
+          echo "has-pending=false" >> $GITHUB_OUTPUT
+        fi
+      
+    - name: Run Database Migrations
+      id: migration
+      if: steps.check-migrations.outputs.has-pending == 'true'
+      run: |
+        echo "🚀 Führe Database Migrations aus..."
+        dotnet ef database update \
+          --project ./CelestialStars-Sql/CelestialStars-Sql.csproj \
+          --startup-project ./CelestialStars-Api/CelestialStars-Api.csproj \
+          --configuration Release \
+          --connection "${{ secrets.DATABASE_CONNECTION_STRING }}" \
+          --verbose
+        echo "✅ Database Migrations erfolgreich abgeschlossen"
+      
+    - name: Skip migrations
+      if: steps.check-migrations.outputs.has-pending == 'false'
+      run: echo "⏭️ Keine Migrationen erforderlich - überspringe Schritt"
+      
+    - name: Verify database connection
+      run: |
+        echo "🔍 Verifiziere Datenbankverbindung..."
+        dotnet ef database list \
+          --project ./CelestialStars-Sql/CelestialStars-Sql.csproj \
+          --startup-project ./CelestialStars-Api/CelestialStars-Api.csproj \
+          --configuration Release \
+          --connection "${{ secrets.DATABASE_CONNECTION_STRING }}" \
+          --no-build
+        echo "✅ Datenbankverbindung erfolgreich verifiziert"
