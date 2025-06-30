@@ -1,10 +1,7 @@
 name: Deploy CelestialStars-Api
 
 on:
-  workflow_run:
-    workflows: ["Database Migration"]
-    types:
-      - completed
+  push:
     branches: [ main ]
   workflow_dispatch:
 
