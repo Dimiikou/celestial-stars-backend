@@ -49,39 +49,6 @@ jobs:
         cd ..
         echo "📁 Deployment-Archiv erstellt: $(du -h celestialstars-api-deployment.tar.gz)"
         
-    - name: Stop running service
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.PRIVATE_KEY }}
-        port: ${{ secrets.PORT }}
-        script: |
-          echo "🛑 Stoppe laufende CelestialStars-Api Prozesse..."
-          if pgrep -f "celestial-stars-api" > /dev/null; then
-            echo "Gefundene Prozesse:"
-            ps aux | grep -v grep | grep celestial-stars-api || true
-            
-            echo "Sende SIGTERM..."
-            pkill -TERM -f "celestial-stars-api" || true
-            sleep 10
-            
-            # Prüfe ob noch läuft
-            if pgrep -f "celestial-stars-api" > /dev/null; then
-              echo "Prozess läuft noch - sende SIGKILL..."
-              pkill -KILL -f "celestial-stars-api" || true
-              sleep 5
-            fi
-            
-            if ! pgrep -f "celestial-stars-api" > /dev/null; then
-              echo "✅ Service erfolgreich gestoppt"
-            else
-              echo "⚠️ Service konnte nicht vollständig gestoppt werden"
-            fi
-          else
-            echo "ℹ️ Kein laufender CelestialStars-Api Prozess gefunden"
-          fi
-        
     - name: Backup and prepare deployment
       uses: appleboy/ssh-action@v1.0.3
       with:
