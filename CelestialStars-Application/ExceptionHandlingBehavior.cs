@@ -2,6 +2,7 @@
 using System.Security.Authentication;
 using System.Text.Json;
 using CelestialStars_Domain.exceptions;
+using FluentValidation;
 using MediatR;
 
 namespace CelestialStars_Application;
@@ -13,6 +14,11 @@ public class ExceptionHandlingBehavior<TRequest, TResponse> : IPipelineBehavior<
         try
         {
             return await next(cancellationToken);
+        }
+        catch (ValidationException ex)
+        {
+            var errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage });
+            throw new ApiException(JsonSerializer.Serialize(errors), HttpStatusCode.BadRequest.GetHashCode(), ex);
         }
         catch (UserAlreadyExistingException ex)
         {
