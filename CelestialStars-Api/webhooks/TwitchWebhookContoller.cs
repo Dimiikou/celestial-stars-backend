@@ -1,8 +1,10 @@
-﻿using System.Diagnostics;
-using CelestialStars_Api.services;
-using CelestialStars_Domain;
-using CelestialStars_Sql;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Net;
+using System.Text.Json;
+using CelestialStars_Application.webhooks.twitch.challengeRequest;
+using CelestialStars_Application.webhooks.twitch.eventFired;
+using CelestialStars_Application.webhooks.twitch.revocation;
+using CelestialStars_Domain.exceptions;
+using MediatR;
 
 namespace CelestialStars_Api.webhooks;
 
@@ -13,64 +15,32 @@ public static class TwitchWebhookContoller
         routeBuilder.MapGet("/twitch", ProcessWebhook);
     }
 
-    private static async Task ProcessWebhook(HttpContext httpContext, CelestialStarsDbContext dbContext)
+    private static async Task ProcessWebhook(HttpContext httpContext, ISender mediator)
     {
         if (!httpContext.Request.Headers.TryGetValue("twitch-eventsub-message-type", out var eventSubMessageType))
         {
-            httpContext.Response.StatusCode = 403;
+            httpContext.Response.StatusCode = HttpStatusCode.Forbidden.GetHashCode();
             await httpContext.Response.WriteAsync("Signature Header not valid");
             return;
         }
 
-        var webhook = dbContext.Webhooks.FirstOrDefault(webhook => webhook.SubscribedEvent.Equals(httpContext.Request.Headers[""]));
-
-        if (webhook is null)
-        {
-            httpContext.Response.StatusCode = 404;
-            await httpContext.Response.WriteAsync("Webhook nicht gefunden");
-            return;
-        }
-
+        var body = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
         switch (eventSubMessageType)
         {
             case "webhook_callback_verification":
-                await ProcessChallengeRequest(httpContext);
+                var challenge = JsonSerializer.Deserialize<TwitchChallengeRequest>(body);
+                await mediator.Send(challenge);
                 break;
             case "revocation":
-                await ProcessRevocationRequest(httpContext, dbContext);
+                var revocation = JsonSerializer.Deserialize<TwitchRevocationRequest>(body);
+                await mediator.Send(revocation);
+                break;
+            case "notification":
+                var notification = JsonSerializer.Deserialize<TwitchEventFiredRequest>(body);
+                await mediator.Send(notification);
                 break;
             default:
-                await ProcessWebhookAction(webhook);
-                break;
+                throw new EventSubMessageTypeNotFoundException();
         }
     }
-
-    private static async Task ProcessChallengeRequest(HttpContext httpContext)
-    {
-        var challengeString = await JsonHelper.GetJsonPropertyValueAsync(httpContext, "challenge");
-        httpContext.Response.StatusCode = 200;
-        await httpContext.Response.WriteAsync(challengeString);
-    }
-
-    private static async Task ProcessRevocationRequest(HttpContext httpContext, CelestialStarsDbContext dbContext)
-    {
-        var callbackUrlString = await JsonHelper.GetJsonPropertyValueAsync(httpContext, "callback");
-        var statusString = await JsonHelper.GetJsonPropertyValueAsync(httpContext, "status");
-
-        var webhook = dbContext.Webhooks.Include(webhook => webhook.LogEntries)
-            .FirstOrDefault(webhook => webhook.CallbackUrl.EndsWith(callbackUrlString));
-
-        webhook?.LogEntries.Add(new LogEntry
-        {
-            Date = DateTime.Now,
-            Text = $"Subscription Entfernt | {statusString}"
-        });
-
-        await dbContext.SaveChangesAsync();
-
-        httpContext.Response.StatusCode = 200;
-        await httpContext.Response.WriteAsync("");
-    }
-
-    private static async Task ProcessWebhookAction(Webhook webhook) { }
 }

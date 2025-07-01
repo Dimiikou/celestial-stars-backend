@@ -1,13 +1,6 @@
-﻿using System.Security.Authentication;
-using CelestialStars_Application.Users;
-using CelestialStars_Application.Users.login;
+﻿using CelestialStars_Application.Users.login;
 using CelestialStars_Application.users.register;
-using CelestialStars_Domain.dataTransferObjects;
-using CelestialStars_Domain.exceptions;
-using CelestialStars_Infrastructure;
-using CelestialStars_Infrastructure.services;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace CelestialStars_Api.accounting;
 

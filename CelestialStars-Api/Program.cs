@@ -1,7 +1,6 @@
 using System.Text;
 using CelestialStars_Api;
 using CelestialStars_Api.accounting;
-using CelestialStars_Api.summonersQuiz;
 using CelestialStars_Api.webhooks;
 using CelestialStars_Application;
 using CelestialStars_Domain;
@@ -216,7 +215,6 @@ public partial class Program
 
         app.MapWebhookEndpoints();
         app.MapAccountApi();
-        app.MapHighscoreApi();
 
         app.MapGet("/ping", () => "Ding Dong");
     }

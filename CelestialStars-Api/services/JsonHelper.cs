@@ -2,7 +2,7 @@
 
 namespace CelestialStars_Api.services;
 
-public class JsonHelper
+public static class JsonHelper
 {
     public static async Task<string> GetJsonPropertyValueAsync(HttpContext httpContext, string propertyName)
     {

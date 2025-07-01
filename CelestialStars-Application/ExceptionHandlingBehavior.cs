@@ -1,4 +1,6 @@
-﻿using System.Security.Authentication;
+﻿using System.Net;
+using System.Security.Authentication;
+using System.Text.Json;
 using CelestialStars_Domain.exceptions;
 using MediatR;
 
@@ -14,16 +16,24 @@ public class ExceptionHandlingBehavior<TRequest, TResponse> : IPipelineBehavior<
         }
         catch (UserAlreadyExistingException ex)
         {
-            throw new ApiException("User already exists", 400, ex);
+            throw new ApiException("User already exists", HttpStatusCode.BadRequest.GetHashCode(), ex);
         }
         catch (InvalidCredentialException ex)
         {
-            throw new ApiException("Invalid credentials", 400, ex);
+            throw new ApiException("Invalid credentials", HttpStatusCode.BadRequest.GetHashCode(), ex);
+        }
+        catch (EventSubMessageTypeNotFoundException ex)
+        {
+            throw new ApiException("EventSubMessageType in Header not found or not correct", HttpStatusCode.BadRequest.GetHashCode(), ex);
+        }
+        catch (JsonException ex)
+        {
+            throw new ApiException("Error while deserializing Json", HttpStatusCode.BadRequest.GetHashCode(), ex);
         }
         catch (Exception ex)
         {
             // Unerwarteter Fehler
-            throw new ApiException("Internal server error", 500, ex);
+            throw new ApiException("Internal server error", HttpStatusCode.InternalServerError.GetHashCode(), ex);
         }
     }
 }

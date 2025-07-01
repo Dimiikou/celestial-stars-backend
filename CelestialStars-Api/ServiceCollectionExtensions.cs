@@ -1,4 +1,9 @@
 ﻿using CelestialStars_Application;
+using CelestialStars_Application.Users.login;
+using CelestialStars_Application.users.register;
+using CelestialStars_Application.webhooks.twitch.challengeRequest;
+using CelestialStars_Application.webhooks.twitch.eventFired;
+using CelestialStars_Application.webhooks.twitch.revocation;
 using CelestialStars_Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -17,13 +22,7 @@ public static class ServiceCollectionExtensions
             }
 
             var connectionString = configuration.GetConnectionString("DefaultConnection");
-            options.UseSqlServer(connectionString, sqlOptions =>
-            {
-                sqlOptions.EnableRetryOnFailure(
-                                                maxRetryCount: 5,
-                                                maxRetryDelay: TimeSpan.FromSeconds(30),
-                                                errorNumbersToAdd: null);
-            });
+            options.UseMySql(connectionString, new MariaDbServerVersion(new Version(10, 6, 5)));
         });
 
         return services;
@@ -32,6 +31,16 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionHandlingBehavior<,>));
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssemblies(
+                                               typeof(LoginUserHandler).Assembly,
+                                               typeof(RegisterUserHandler).Assembly,
+                                               typeof(TwitchChallengeHandler).Assembly,
+                                               typeof(TwitchEventFiredHandler).Assembly,
+                                               typeof(TwitchRevocationHandler).Assembly
+                                              );
+        });
 
 
         return services;
