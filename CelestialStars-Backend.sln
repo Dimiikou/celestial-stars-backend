@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CelestialStars-Domain", "Ce
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CelestialStars-UnitTests", "CelestialStars-UnitTests\CelestialStars-UnitTests.csproj", "{6F2525B4-CCC5-457D-A370-BC7EDF3ED938}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CelestialStars-Application", "CelestialStars-Application\CelestialStars-Application.csproj", "{B7DBDAC1-997E-4191-9836-CF041F6319D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{6F2525B4-CCC5-457D-A370-BC7EDF3ED938}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F2525B4-CCC5-457D-A370-BC7EDF3ED938}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F2525B4-CCC5-457D-A370-BC7EDF3ED938}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7DBDAC1-997E-4191-9836-CF041F6319D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7DBDAC1-997E-4191-9836-CF041F6319D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7DBDAC1-997E-4191-9836-CF041F6319D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7DBDAC1-997E-4191-9836-CF041F6319D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
