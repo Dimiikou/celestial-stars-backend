@@ -1,7 +1,12 @@
-﻿using CelestialStars_Api.services;
-using CelestialStars_Domain;
+﻿using System.Security.Authentication;
+using CelestialStars_Application.Users;
+using CelestialStars_Application.Users.login;
+using CelestialStars_Application.users.register;
 using CelestialStars_Domain.dataTransferObjects;
-using CelestialStars_Sql;
+using CelestialStars_Domain.exceptions;
+using CelestialStars_Infrastructure;
+using CelestialStars_Infrastructure.services;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CelestialStars_Api.accounting;
@@ -15,29 +20,15 @@ public static class AccountController
 
         accountGroup.MapPost("/register", Register)
             .AllowAnonymous();
+
         accountGroup.MapPost("/logout", Logout);
         accountGroup.MapPost("/", Login)
             .AllowAnonymous();
     }
 
-    private static async Task<IResult> Register(HttpContext context, RegisterDto registerDto, AuthService authService, CelestialStarsDbContext db)
+    private static async Task<IResult> Register(HttpContext context, RegisterUserRequest registerRequest, ISender mediator)
     {
-        if (await db.Users.AnyAsync(u => u.Email == registerDto.Email))
-        {
-            return Results.BadRequest("Email already in use");
-        }
-
-        var user = new User
-        {
-            Username = registerDto.Username,
-            Email = registerDto.Email,
-            PasswordHash = authService.HashPassword(registerDto.Password)
-        };
-
-        db.Users.Add(user);
-        await db.SaveChangesAsync();
-
-        var token = authService.CreateToken(user);
+        var response = await mediator.Send(registerRequest);
 
         var cookieOptions = new CookieOptions
         {
@@ -47,11 +38,11 @@ public static class AccountController
             Expires = DateTime.Now.AddDays(1)
         };
 
-        context.Response.Cookies.Append("jwt", token, cookieOptions);
+        context.Response.Cookies.Append("jwt", response.Token, cookieOptions);
 
         return Results.Ok(new
         {
-            user = new { user.Id, user.Username, user.Email },
+            user = new { response.User.Id, response.User.Username, response.User.Email },
             message = "Registration successful"
         });
     }
@@ -62,20 +53,9 @@ public static class AccountController
         return Results.Ok(new { message = "Logged out successfully" });
     }
 
-    private static async Task<IResult> Login(HttpContext context, LoginDto loginDto, AuthService authService, CelestialStarsDbContext db)
+    private static async Task<IResult> Login(HttpContext context, LoginUserRequest loginRequest, ISender mediator)
     {
-        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
-        if (user == null)
-        {
-            return Results.BadRequest("Username or Password Incorrect");
-        }
-
-        if (!authService.VerifyPassword(loginDto.Password, user.PasswordHash))
-        {
-            return Results.BadRequest("Username or Password Incorrect");
-        }
-
-        var token = authService.CreateToken(user);
+        var response = await mediator.Send(loginRequest);
 
         var cookieOptions = new CookieOptions
         {
@@ -85,11 +65,11 @@ public static class AccountController
             Expires = DateTime.Now.AddDays(1)
         };
 
-        context.Response.Cookies.Append("jwt", token, cookieOptions);
+        context.Response.Cookies.Append("jwt", response.Token, cookieOptions);
 
         return Results.Ok(new
         {
-            user = new { user.Id, user.Username, user.Email },
+            user = new { response.User.Id, response.User.Username, response.User.Email },
             message = "Login successful"
         });
     }

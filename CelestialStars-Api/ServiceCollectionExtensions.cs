@@ -1,5 +1,6 @@
-﻿using CelestialStars_Api.services;
-using CelestialStars_Sql;
+﻿using CelestialStars_Application;
+using CelestialStars_Infrastructure;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CelestialStars_Api;
@@ -30,7 +31,8 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddScoped<AuthService>();
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionHandlingBehavior<,>));
+
 
         return services;
     }

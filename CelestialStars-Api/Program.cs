@@ -3,8 +3,9 @@ using CelestialStars_Api;
 using CelestialStars_Api.accounting;
 using CelestialStars_Api.summonersQuiz;
 using CelestialStars_Api.webhooks;
+using CelestialStars_Application;
 using CelestialStars_Domain;
-using CelestialStars_Sql;
+using CelestialStars_Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -182,6 +183,8 @@ public partial class Program
 
     private static void ConfigureMiddleware(WebApplication app, IWebHostEnvironment env)
     {
+        app.UseMiddleware<ApiExceptionMiddleware>();
+
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
