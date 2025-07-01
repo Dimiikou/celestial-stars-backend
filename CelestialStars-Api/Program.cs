@@ -36,7 +36,10 @@ public partial class Program
 
             var app = builder.Build();
 
-            await MigrateDatabaseAsync(app);
+            if (!builder.Environment.IsEnvironment("Test"))
+            {
+                await MigrateDatabaseAsync(app);
+            }
 
             ConfigureMiddleware(app, app.Environment);
             ConfigureEndpoints(app);
