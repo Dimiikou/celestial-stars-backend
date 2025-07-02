@@ -3,7 +3,4 @@ using MediatR;
 
 namespace CelestialStars_Application.webhooks.twitch.revocation;
 
-public class TwitchRevocationRequest : IRequest<Unit>
-{
-    public Subscription Subscription { get; set; }
-}
+public class TwitchRevocationRequest : TwitchSubscriptionEnvelope, IRequest<Unit> { }

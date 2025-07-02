@@ -65,6 +65,7 @@ public partial class Program
 
         // Controllers
         services.AddControllers().AddNewtonsoftJson();
+
         services.AddProblemDetails();
         services.AddHealthChecks();
 

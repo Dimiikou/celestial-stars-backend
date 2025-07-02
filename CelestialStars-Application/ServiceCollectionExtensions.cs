@@ -6,6 +6,7 @@ using CelestialStars_Application.webhooks.twitch.revocation;
 using CelestialStars_Domain;
 using CelestialStars_Infrastructure;
 using CelestialStars_Infrastructure.services;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +43,14 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(sp => sp.GetRequiredService<IOptions<JwtSettings>>().Value);
         services.AddScoped<AuthService>();
 
+        services.AddScoped<IValidator<RegisterUserRequest>, RegisterUserRequestValidator>();
+        services.AddScoped<IValidator<LoginUserRequest>, LoginUserRequestValidator>();
+        services.AddScoped<IValidator<TwitchChallengeRequest>, TwitchChallengeRequestValidator>();
+        services.AddScoped<IValidator<TwitchEventFiredRequest>, TwitchEventFiredRequestValidator>();
+        services.AddScoped<IValidator<TwitchRevocationRequest>, TwitchRevocationRequestValidator>();
+
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionHandlingBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssemblies(

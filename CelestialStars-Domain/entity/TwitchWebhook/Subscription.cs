@@ -1,4 +1,6 @@
-﻿namespace CelestialStars_Domain.TwitchWebhook;
+﻿using CelestialStars_Domain.TwitchWebhook;
+
+namespace CelestialStars_Domain.entity.TwitchWebhook;
 
 public class Subscription
 {

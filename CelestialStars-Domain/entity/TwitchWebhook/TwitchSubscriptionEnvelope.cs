@@ -1,4 +1,5 @@
-﻿using CelestialStars_Domain.TwitchWebhook;
+﻿using CelestialStars_Domain.entity.TwitchWebhook;
+using CelestialStars_Domain.TwitchWebhook;
 
 namespace CelestialStars_Application.webhooks.twitch;
 

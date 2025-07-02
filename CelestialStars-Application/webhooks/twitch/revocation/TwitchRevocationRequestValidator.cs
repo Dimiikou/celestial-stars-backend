@@ -1,6 +1,12 @@
-﻿namespace CelestialStars_Application.webhooks.twitch.revocation;
+﻿using CelestialStars_Application.webhooks.twitch.Validators;
+using FluentValidation;
 
-public class TwitchRevocationRequestValidator
+namespace CelestialStars_Application.webhooks.twitch.revocation;
+
+public class TwitchRevocationRequestValidator : AbstractValidator<TwitchRevocationRequest>
 {
-    
+    public TwitchRevocationRequestValidator()
+    {
+        RuleFor(x => x.Subscription).NotNull().SetValidator(new SubscriptionValidator());
+    }
 }
