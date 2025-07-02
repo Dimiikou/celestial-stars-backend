@@ -183,17 +183,8 @@ public partial class Program
 
     private static void ConfigureMiddleware(WebApplication app, IWebHostEnvironment env)
     {
+        app.UseHsts();
         app.UseMiddleware<ApiExceptionMiddleware>();
-
-        if (env.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-        }
-        else
-        {
-            app.UseExceptionHandler();
-            app.UseHsts();
-        }
 
         app.MapOpenApi();
         app.UseSwagger();
