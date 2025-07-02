@@ -1,8 +1,5 @@
 ﻿using CelestialStars_Application.Users.login;
 using CelestialStars_Application.users.register;
-using CelestialStars_Application.webhooks.twitch.challengeRequest;
-using CelestialStars_Application.webhooks.twitch.eventFired;
-using CelestialStars_Application.webhooks.twitch.revocation;
 using CelestialStars_Domain;
 using CelestialStars_Infrastructure;
 using CelestialStars_Infrastructure.services;
@@ -43,23 +40,13 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(sp => sp.GetRequiredService<IOptions<JwtSettings>>().Value);
         services.AddScoped<AuthService>();
 
-        services.AddScoped<IValidator<RegisterUserRequest>, RegisterUserRequestValidator>();
-        services.AddScoped<IValidator<LoginUserRequest>, LoginUserRequestValidator>();
-        services.AddScoped<IValidator<TwitchChallengeRequest>, TwitchChallengeRequestValidator>();
-        services.AddScoped<IValidator<TwitchEventFiredRequest>, TwitchEventFiredRequestValidator>();
-        services.AddScoped<IValidator<TwitchRevocationRequest>, TwitchRevocationRequestValidator>();
+        services.AddValidatorsFromAssembly(typeof(RegisterUserRequestValidator).Assembly);
 
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionHandlingBehavior<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(
-                                               typeof(LoginUserHandler).Assembly,
-                                               typeof(RegisterUserHandler).Assembly,
-                                               typeof(TwitchChallengeHandler).Assembly,
-                                               typeof(TwitchEventFiredHandler).Assembly,
-                                               typeof(TwitchRevocationHandler).Assembly
-                                              );
+            cfg.RegisterServicesFromAssemblies(typeof(LoginUserHandler).Assembly);
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ExceptionHandlingBehavior<,>));
         });
 
         return services;
