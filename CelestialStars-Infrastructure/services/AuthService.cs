@@ -2,18 +2,19 @@
 using System.Security.Claims;
 using System.Text;
 using CelestialStars_Domain;
+using CelestialStars_Domain.entity;
 using Isopoh.Cryptography.Argon2;
 using Microsoft.IdentityModel.Tokens;
 
-namespace CelestialStars_Api.services;
+namespace CelestialStars_Infrastructure.services;
 
 public class AuthService
 {
-    private readonly IConfiguration _configuration;
+    private readonly JwtSettings _jwtSettings;
 
-    public AuthService(IConfiguration configuration)
+    public AuthService(JwtSettings jwtSettings)
     {
-        _configuration = configuration;
+        _jwtSettings = jwtSettings;
     }
 
     public string CreateToken(User user)
@@ -25,15 +26,15 @@ public class AuthService
             new (ClaimTypes.NameIdentifier, user.Id.ToString())
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
 
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
         var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
+            issuer: _jwtSettings.Issuer,
+            audience: _jwtSettings.Audience,
             claims: claims,
-            expires: DateTime.Now.AddHours(1),
+            expires: DateTime.Now.AddHours(3),
             signingCredentials: credentials
         );
 

@@ -1,7 +1,8 @@
 ﻿using CelestialStars_Domain;
+using CelestialStars_Domain.entity;
 using Microsoft.EntityFrameworkCore;
 
-namespace CelestialStars_Sql;
+namespace CelestialStars_Infrastructure;
 
 public class CelestialStarsDbContext : DbContext
 {

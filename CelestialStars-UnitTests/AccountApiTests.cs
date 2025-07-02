@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using CelestialStars_Application.users.register;
 using CelestialStars_Domain.dataTransferObjects;
 
 namespace CelestialStars_UnitTests;
@@ -18,11 +19,11 @@ public class AccountApiTests : IClassFixture<CustomWebApplicationFactory>
     public async Task RegisterUser_ShouldReturnCreatedUserAndSetCookie()
     {
         // Arrange
-        var registerDto = new RegisterDto
+        var registerDto = new RegisterUserRequest
         {
             Username = "Dimiikou",
             Email = "leon@aissa.dev",
-            Password = "1234!"
+            Password = "1234!g"
         };
 
         // Act

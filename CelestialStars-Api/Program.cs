@@ -1,10 +1,9 @@
 using System.Text;
-using CelestialStars_Api;
 using CelestialStars_Api.accounting;
-using CelestialStars_Api.summonersQuiz;
 using CelestialStars_Api.webhooks;
+using CelestialStars_Application;
 using CelestialStars_Domain;
-using CelestialStars_Sql;
+using CelestialStars_Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -44,7 +43,7 @@ public partial class Program
             ConfigureMiddleware(app, app.Environment);
             ConfigureEndpoints(app);
 
-            app.Run();
+            await app.RunAsync();
         }
         catch (Exception ex)
         {
@@ -66,6 +65,7 @@ public partial class Program
 
         // Controllers
         services.AddControllers().AddNewtonsoftJson();
+
         services.AddProblemDetails();
         services.AddHealthChecks();
 
@@ -76,7 +76,8 @@ public partial class Program
         services.AddDatabase(configuration, environment);
 
         // Application Services
-        services.AddApplicationServices();
+        services.AddApplicationServices(configuration);
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
     }
 
     private static void ConfigureSwagger(IServiceCollection services)
@@ -182,15 +183,8 @@ public partial class Program
 
     private static void ConfigureMiddleware(WebApplication app, IWebHostEnvironment env)
     {
-        if (env.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-        }
-        else
-        {
-            app.UseExceptionHandler();
-            app.UseHsts();
-        }
+        app.UseHsts();
+        app.UseMiddleware<ApiExceptionMiddleware>();
 
         app.MapOpenApi();
         app.UseSwagger();
@@ -213,7 +207,6 @@ public partial class Program
 
         app.MapWebhookEndpoints();
         app.MapAccountApi();
-        app.MapHighscoreApi();
 
         app.MapGet("/ping", () => "Ding Dong");
     }
