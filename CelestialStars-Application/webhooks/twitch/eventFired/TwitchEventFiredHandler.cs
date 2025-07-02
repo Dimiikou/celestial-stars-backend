@@ -9,12 +9,10 @@ namespace CelestialStars_Application.webhooks.twitch.eventFired;
 public class TwitchEventFiredHandler : IRequestHandler<TwitchEventFiredRequest, Unit>
 {
     private readonly CelestialStarsDbContext _db;
-    private readonly HttpContext _httpContext;
 
-    public TwitchEventFiredHandler(CelestialStarsDbContext db, HttpContext httpContext)
+    public TwitchEventFiredHandler(CelestialStarsDbContext db)
     {
         _db = db;
-        _httpContext = httpContext;
     }
 
     public async Task<Unit> Handle(TwitchEventFiredRequest request, CancellationToken cancellationToken)

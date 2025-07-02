@@ -1,4 +1,4 @@
-﻿using CelestialStars_Sql;
+﻿using CelestialStars_Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;

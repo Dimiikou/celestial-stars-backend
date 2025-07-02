@@ -2,7 +2,7 @@
 
 namespace CelestialStars_Application.webhooks.twitch.challengeRequest;
 
-public class TwitchChallengeRequest : TwitchSubscriptionEnvelope, IRequest<Unit>
+public class TwitchChallengeRequest : TwitchSubscriptionEnvelope, IRequest<string>
 {
     public string Challenge { get; set; }
 }

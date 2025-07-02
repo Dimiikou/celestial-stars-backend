@@ -3,19 +3,12 @@ using Microsoft.AspNetCore.Http;
 
 namespace CelestialStars_Application.webhooks.twitch.challengeRequest;
 
-public class TwitchChallengeHandler : IRequestHandler<TwitchChallengeRequest, Unit>
+public class TwitchChallengeHandler : IRequestHandler<TwitchChallengeRequest, string>
 {
-    private readonly HttpContext _httpContext;
+    public TwitchChallengeHandler() { }
 
-    public TwitchChallengeHandler(HttpContext httpContext)
+    public Task<string> Handle(TwitchChallengeRequest request, CancellationToken cancellationToken)
     {
-        _httpContext = httpContext;
-    }
-
-    public async Task<Unit> Handle(TwitchChallengeRequest request, CancellationToken cancellationToken)
-    {
-        _httpContext.Response.StatusCode = 200;
-        await _httpContext.Response.WriteAsync(request.Challenge, cancellationToken: cancellationToken);
-        return Unit.Value;
+        return Task.FromResult(request.Challenge);
     }
 }

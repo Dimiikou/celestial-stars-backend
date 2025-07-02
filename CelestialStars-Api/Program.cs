@@ -1,5 +1,4 @@
 using System.Text;
-using CelestialStars_Api;
 using CelestialStars_Api.accounting;
 using CelestialStars_Api.webhooks;
 using CelestialStars_Application;
@@ -76,7 +75,8 @@ public partial class Program
         services.AddDatabase(configuration, environment);
 
         // Application Services
-        services.AddApplicationServices();
+        services.AddApplicationServices(configuration);
+        services.AddAutoMapper(typeof(Program));
     }
 
     private static void ConfigureSwagger(IServiceCollection services)

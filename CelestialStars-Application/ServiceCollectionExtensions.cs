@@ -1,14 +1,20 @@
-﻿using CelestialStars_Application;
-using CelestialStars_Application.Users.login;
+﻿using CelestialStars_Application.Users.login;
 using CelestialStars_Application.users.register;
 using CelestialStars_Application.webhooks.twitch.challengeRequest;
 using CelestialStars_Application.webhooks.twitch.eventFired;
 using CelestialStars_Application.webhooks.twitch.revocation;
+using CelestialStars_Domain;
 using CelestialStars_Infrastructure;
+using CelestialStars_Infrastructure.services;
 using MediatR;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
-namespace CelestialStars_Api;
+namespace CelestialStars_Application;
 
 public static class ServiceCollectionExtensions
 {
@@ -18,18 +24,24 @@ public static class ServiceCollectionExtensions
         {
             if (environment.IsEnvironment("Test"))
             {
-                return;
+                options.UseInMemoryDatabase("TestDb");
             }
-
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
-            options.UseMySql(connectionString, new MariaDbServerVersion(new Version(10, 6, 5)));
+            else
+            {
+                var connectionString = configuration.GetConnectionString("DefaultConnection");
+                options.UseMySql(connectionString, new MariaDbServerVersion(new Version(10, 6, 5)));
+            }
         });
 
         return services;
     }
 
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
+        services.AddSingleton(sp => sp.GetRequiredService<IOptions<JwtSettings>>().Value);
+        services.AddScoped<AuthService>();
+
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionHandlingBehavior<,>));
         services.AddMediatR(cfg =>
         {
@@ -41,7 +53,6 @@ public static class ServiceCollectionExtensions
                                                typeof(TwitchRevocationHandler).Assembly
                                               );
         });
-
 
         return services;
     }

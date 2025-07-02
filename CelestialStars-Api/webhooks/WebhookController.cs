@@ -1,7 +1,8 @@
-﻿using CelestialStars_Domain;
-using CelestialStars_Sql;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
+﻿using CelestialStars_Application;
+using CelestialStars_Application.webhooks.getWebHook;
+using CelestialStars_Application.webhooks.getWebHooks;
+using CelestialStars_Domain;
+using MediatR;
 
 namespace CelestialStars_Api.webhooks;
 
@@ -22,45 +23,20 @@ public static class WebhookController
 
     #region Get Mappings
 
-    private static async Task GetWebhooks(HttpContext httpContext, CelestialStarsDbContext dbContext)
+    private static async Task GetWebhooks(HttpContext httpContext, ISender sender)
     {
-        var webhooks = await dbContext.Webhooks.ToListAsync();
-
-        httpContext.Response.ContentType = "application/json";
-        httpContext.Response.StatusCode = 200;
-
-        var json = JsonConvert.SerializeObject(webhooks,
-                                               new JsonSerializerSettings
-                                               {
-                                                   Formatting = Formatting.Indented,
-                                                   ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
-                                               });
-
-        await httpContext.Response.WriteAsync(json);
+        var webhooks = sender.Send(new GetWebhooksQuery());
+        await httpContext.Response.WriteJsonAsync(webhooks);
     }
 
-    private static async Task GetWebhook(HttpContext httpContext, CelestialStarsDbContext dbContext, int webhookId)
+    private static async Task GetWebhook(HttpContext httpContext, int webhookId, ISender sender)
     {
-        var webhook = dbContext.Webhooks.FirstOrDefault(webhook => webhook.Id == webhookId);
-
-        if (webhook is null)
+        var webhook = await sender.Send(new GetWebhookQuery
         {
-            httpContext.Response.StatusCode = 404;
-            await httpContext.Response.WriteAsync($"Webhook with Id {webhookId} not found");
-            return;
-        }
+            Id = webhookId
+        });
 
-        httpContext.Response.ContentType = "application/json";
-        httpContext.Response.StatusCode = 200;
-
-        var json = JsonConvert.SerializeObject(webhook,
-                                               new JsonSerializerSettings
-                                               {
-                                                   Formatting = Formatting.Indented,
-                                                   ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
-                                               });
-
-        await httpContext.Response.WriteAsync(json);
+        await httpContext.Response.WriteJsonAsync(webhook);
     }
 
     #endregion Get Mappings

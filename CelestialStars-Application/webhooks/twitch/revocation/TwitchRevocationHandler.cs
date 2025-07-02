@@ -9,12 +9,10 @@ namespace CelestialStars_Application.webhooks.twitch.revocation;
 public class TwitchRevocationHandler : IRequestHandler<TwitchRevocationRequest, Unit>
 {
     private readonly CelestialStarsDbContext _db;
-    private readonly HttpContext _httpContext;
 
-    public TwitchRevocationHandler(CelestialStarsDbContext db, HttpContext httpContext)
+    public TwitchRevocationHandler(CelestialStarsDbContext db)
     {
         _db = db;
-        _httpContext = httpContext;
     }
 
     public async Task<Unit> Handle(TwitchRevocationRequest request, CancellationToken cancellationToken)
@@ -30,8 +28,6 @@ public class TwitchRevocationHandler : IRequestHandler<TwitchRevocationRequest, 
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        _httpContext.Response.StatusCode = 200;
-        await _httpContext.Response.WriteAsync("", cancellationToken: cancellationToken);
         return Unit.Value;
     }
 }
