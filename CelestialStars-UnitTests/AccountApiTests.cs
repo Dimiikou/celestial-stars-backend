@@ -23,7 +23,7 @@ public class AccountApiTests : IClassFixture<CustomWebApplicationFactory>
         {
             Username = "Dimiikou",
             Email = "leon@aissa.dev",
-            Password = "1234!"
+            Password = "1234!g"
         };
 
         // Act
