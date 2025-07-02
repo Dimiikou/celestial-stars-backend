@@ -16,7 +16,8 @@ jobs:
     - name: Create and populate appsettings.json
       run: |
         mkdir -p CelestialStars-Api
-        echo '{
+        cat <<EOF > CelestialStars-Api/appsettings.json
+        {
           "Jwt": {
             "Key": "${{ secrets.JWT_KEY }}",
             "Issuer": "https://api.aissa.dev",
@@ -32,7 +33,8 @@ jobs:
             }
           },
           "AllowedHosts": "*"
-        }' > CelestialStars-Api/appsettings.json
+        }
+        EOF
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
