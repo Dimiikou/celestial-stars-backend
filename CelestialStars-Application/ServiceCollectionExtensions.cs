@@ -29,7 +29,7 @@ public static class ServiceCollectionExtensions
             else
             {
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
-                options.UseMySql(connectionString, new MariaDbServerVersion(new Version(10, 6, 5)));
+                options.UseMySql(connectionString, new MariaDbServerVersion(new Version(11, 8, 2)));
             }
         });
 
