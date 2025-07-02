@@ -14,7 +14,28 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
+    - name: Create and populate appsettings.json
+      run: |
+        mkdir -p CelestialStars-Api
+        echo '{
+          "Jwt": {
+            "Key": "${{ secrets.JWT_KEY }}",
+            "Issuer": "https://api.aissa.dev",
+            "Audience": "https://api.aissa.com"
+          },
+          "ConnectionStrings": {
+            "DefaultConnection": "${{ secrets.DB_CONNECTION_STRING }}"
+          },
+          "Logging": {
+            "LogLevel": {
+              "Default": "Information",
+              "Microsoft.AspNetCore": "Warning"
+            }
+          },
+          "AllowedHosts": "*"
+        }' > CelestialStars-Api/appsettings.json
+        
     - name: Setup .NET 9.0
       uses: actions/setup-dotnet@v4
       with:
