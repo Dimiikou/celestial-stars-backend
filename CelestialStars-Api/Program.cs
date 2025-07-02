@@ -43,7 +43,7 @@ public partial class Program
             ConfigureMiddleware(app, app.Environment);
             ConfigureEndpoints(app);
 
-            app.Run();
+            await app.RunAsync();
         }
         catch (Exception ex)
         {
