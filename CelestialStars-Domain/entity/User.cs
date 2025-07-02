@@ -1,4 +1,4 @@
-﻿namespace CelestialStars_Domain;
+﻿namespace CelestialStars_Domain.entity;
 
 public class User
 {

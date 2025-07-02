@@ -1,4 +1,5 @@
 ﻿using CelestialStars_Domain;
+using CelestialStars_Domain.entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace CelestialStars_Infrastructure;

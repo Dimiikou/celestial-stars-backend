@@ -1,6 +1,7 @@
 ﻿using System.Security.Authentication;
 using AutoMapper;
 using CelestialStars_Domain;
+using CelestialStars_Domain.entity;
 using CelestialStars_Infrastructure;
 using CelestialStars_Infrastructure.services;
 using MediatR;

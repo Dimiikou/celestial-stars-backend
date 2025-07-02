@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using CelestialStars_Domain;
+using CelestialStars_Domain.entity;
 using Isopoh.Cryptography.Argon2;
 using Microsoft.IdentityModel.Tokens;
 

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CelestialStars_Application.Users;
 using CelestialStars_Domain;
+using CelestialStars_Domain.entity;
 using CelestialStars_Domain.exceptions;
 using CelestialStars_Infrastructure;
 using CelestialStars_Infrastructure.services;

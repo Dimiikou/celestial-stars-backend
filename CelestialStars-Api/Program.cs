@@ -76,7 +76,7 @@ public partial class Program
 
         // Application Services
         services.AddApplicationServices(configuration);
-        services.AddAutoMapper(typeof(Program));
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
     }
 
     private static void ConfigureSwagger(IServiceCollection services)
