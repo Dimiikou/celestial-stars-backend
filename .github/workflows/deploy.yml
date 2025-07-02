@@ -23,7 +23,7 @@ jobs:
           "Jwt": {
             "Key": "${{ secrets.JWT_KEY }}",
             "Issuer": "https://api.aissa.dev",
-            "Audience": "https://api.aissa.com"
+            "Audience": "https://api.aissa.dev"
           },
           "ConnectionStrings": {
             "DefaultConnection": "${{ secrets.DB_CONNECTION_STRING }}"
